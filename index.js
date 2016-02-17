@@ -1,11 +1,11 @@
-import loaderUtils from 'loader-utils';
+var loaderUtils = require('loader-utils');
 
-const regExp = /\/\*\* CHECK_CUSTOMER_START (\[.*?\]) \*\*\/((.|[\r\n])*?)\/\*\* CHECK_CUSTOMER_END \*\*\//g;
-const patternStart = '/** CHECK_CUSTOMER_START ';
-const patternEnd = '/** CHECK_CUSTOMER_END **/';
+var regExp = /\/\*\* CHECK_CUSTOMER_START (\[.*?\]) \*\*\/((.|[\r\n])*?)\/\*\* CHECK_CUSTOMER_END \*\*\//g;
+var patternStart = '/** CHECK_CUSTOMER_START ';
+var patternEnd = '/** CHECK_CUSTOMER_END **/';
 
 function replace (source, query) {
-    var customerId = query.customerId || 'default';
+    var customerId = query.customer || 'default';
     var startChar = source.indexOf(patternStart);
     if (startChar < 0) {
         return source;
