@@ -1,6 +1,6 @@
-# code customization loader for webpack
+# Code customization loader for webpack
 
-Checking and removing code blocks for different customers.   
+Checking and removing different code blocks from webpack bundled script for several customers.   
 
 
 normal code
