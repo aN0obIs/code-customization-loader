@@ -46,6 +46,5 @@ module.exports = function (source) {
     this.cacheable && this.cacheable();
     var query = loaderUtils.parseQuery(this.query);
     source = replace(source, query);
-    this.cacheable();
     return source;
 };
