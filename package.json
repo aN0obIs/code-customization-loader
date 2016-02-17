@@ -1,0 +1,16 @@
+{
+  "author": {
+    "name": "Stepan Smagin"
+  },
+  "dependencies": {
+    "loader-utils": "0.2.x"
+  },
+  "description": "code customization loader module for webpack",
+  "devDependencies": {},
+  "directories": {},
+  "license": "MIT",
+  "name": "code-customization-loader",
+  "optionalDependencies": {},
+  "scripts": {},
+  "version": "1.0.0"
+}
