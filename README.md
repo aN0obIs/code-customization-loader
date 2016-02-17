@@ -27,7 +27,9 @@ Id of current customer
 ####logLevel 
 
 0 - no log
+
 1 (default) - log code fragments
+
 2 - full log
 
 ## License
