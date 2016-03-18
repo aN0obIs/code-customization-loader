@@ -7,6 +7,10 @@
   },
   "description": "code customization loader module for webpack",
   "devDependencies": {},
+  "repository":  {
+    "type" : "git",
+    "url" : "https://github.com/aN0obIs/code-customization-loader.git"
+  },
   "directories": {},
   "license": "MIT",
   "name": "code-customization-loader",
