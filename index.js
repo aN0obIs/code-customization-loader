@@ -31,21 +31,33 @@ function replace(source, query, fileName) {
             if (logLevel >= 1) {
                 console.log(`Code block ${customerGroup} with length of ${contentGroup.length} characters for ${customerId} excluded from ${fileName}`);
             }
-            return '';
+            var res = '';
+            for (var ri = 0; ri < str.length; ri++) {
+                if (ri > 2 && ri < (str.length - 3) && str[ri] !== '\n' && str[ri] !== '\r' && str[ri] !== '\t') {
+                    res += '*';
+                } else {
+                    res += str[ri];
+                }
+            }
+            return res;
         }
         if (logLevel >= 1) {
             console.log(`Code block ${customerGroup} with length of ${contentGroup.length} characters for ${customerId} included in ${fileName}`);
         }
-        return contentGroup;
+        var custStub = '';
+        for (var ci = 0; ci < customerGroup.length; ci++) {
+            custStub += '*';
+        }
+        return'/**************************' + custStub + '*/' + contentGroup + '/************************/';
     });
     var result = source.substr(0, startChar) + localSource + source.substr(endChar);
     return result;
 }
 
-module.exports = function (source) {
+module.exports = function (source, map) {
     this.cacheable && this.cacheable();
     var query = loaderUtils.parseQuery(this.query);
     var fileName = path.basename(this.resourcePath);
     source = replace(source, query, fileName);
-    this.callback(null, source, null);
+    this.callback(null, source, map);
 };
