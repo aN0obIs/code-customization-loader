@@ -56,7 +56,7 @@ function replace(source, query, fileName) {
 
 module.exports = function (source, map) {
     this.cacheable && this.cacheable();
-    var query = loaderUtils.parseQuery(this.query);
+    var query = loaderUtils.getOptions(this);
     var fileName = path.basename(this.resourcePath);
     source = replace(source, query, fileName);
     this.callback(null, source, map);

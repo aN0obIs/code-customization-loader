@@ -3,7 +3,7 @@
     "name": "Stepan Smagin"
   },
   "dependencies": {
-    "loader-utils": "0.2.x"
+    "loader-utils": "1.1.0"
   },
   "description": "code customization loader module for webpack",
   "devDependencies": {},
@@ -16,5 +16,5 @@
   "name": "code-customization-loader",
   "optionalDependencies": {},
   "scripts": {},
-  "version": "1.0.6"
+  "version": "1.0.7"
 }
