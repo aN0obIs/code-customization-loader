@@ -28,17 +28,19 @@ function replace(source, query, fileName) {
             console.log('___________FRAG_END_________');
         }
         var index = customerGroup.indexOf(customerId);
-        if (index === -1 || (
-                (index > 0
-                    && customerGroup[index - 1] !== ','
-                    && customerGroup[index - 1] !== ' '
-                    && customerGroup[index - 1] !== '[') ||
-                (customerGroup.length > customerId.length + index
-                    && customerGroup[customerId.length + index] !== ','
-                    && customerGroup[customerId.length + index] !== ' '
-                    && customerGroup[customerId.length + index] !== ']')
-            )
-        ) {
+        if (
+          (index === -1 && customerGroup.indexOf('!') === -1) ||
+          (index > -1 &&
+            (index > 0 && customerGroup[index - 1] === '!' ||
+              ((index > 0 &&
+                customerGroup[index - 1] !== ',' &&
+                customerGroup[index - 1] !== ' ' &&
+                customerGroup[index - 1] !== '[') ||
+                (customerGroup.length > customerId.length + index &&
+                  customerGroup[customerId.length + index] !== ',' &&
+                  customerGroup[customerId.length + index] !== ' ' &&
+                  customerGroup[customerId.length + index] !== ']')))
+        )) {
             if (logLevel >= 2) {
                 console.log(`Code block ${customerGroup} with length of ${contentGroup.length} characters for ${customerId} excluded from ${fileName}`);
             }
