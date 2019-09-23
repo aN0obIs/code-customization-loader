@@ -4,6 +4,32 @@ var regExp = /\/\*\* CHECK_CUSTOMER_START (\[.*?\]) \*\*\/((.|[\r\n])*?)\/\*\* C
 var patternStart = '/** CHECK_CUSTOMER_START ';
 var patternEnd = '/** CHECK_CUSTOMER_END **/';
 
+/**
+ *
+ * @param {String} customerGroup - "[customerOne, customerTwo, customerThree]"
+ * @param {String} customerId - "customerTwo", for example
+ * @param {Number} index - index of first customerId symbol
+ * @returns {Boolean}
+ */
+function isCustomerIdStartedProperly(customerGroup, customerId, index) {
+    return customerGroup[index - 1] === ',' ||
+      customerGroup[index - 1] === ' ' ||
+      customerGroup[index - 1] === '[';
+}
+
+/**
+ *
+ * @param {String} customerGroup - "[customerOne, customerTwo, customerThree]"
+ * @param {String} customerId - "customerTwo", for example
+ * @param {Number} index - index of first customerId symbol
+ * @returns {Boolean}
+ */
+function isCustomerIdEndedProperly(customerGroup, customerId, index) {
+    return customerGroup[customerId.length + index] === ',' ||
+      customerGroup[customerId.length + index] === ' ' ||
+      customerGroup[customerId.length + index] === ']';
+}
+
 function replace(source, query, fileName) {
     var customerId = query.customer || 'default';
     var startChar = source.indexOf(patternStart);
@@ -28,18 +54,18 @@ function replace(source, query, fileName) {
             console.log('___________FRAG_END_________');
         }
         var index = customerGroup.indexOf(customerId);
+        // replace code block with **** by condition
         if (
+          // there is no customerId AND no negative conditions within customers group
           (index === -1 && customerGroup.indexOf('!') === -1) ||
+          // customerId found in group
           (index > -1 &&
-            (index > 0 && customerGroup[index - 1] === '!' ||
+            (index > 0 && customerGroup[index - 1] === '!' &&
+              isCustomerIdEndedProperly(customerGroup, customerId, index) ||
               ((index > 0 &&
-                customerGroup[index - 1] !== ',' &&
-                customerGroup[index - 1] !== ' ' &&
-                customerGroup[index - 1] !== '[') ||
+                !isCustomerIdStartedProperly(customerGroup, customerId, index)) ||
                 (customerGroup.length > customerId.length + index &&
-                  customerGroup[customerId.length + index] !== ',' &&
-                  customerGroup[customerId.length + index] !== ' ' &&
-                  customerGroup[customerId.length + index] !== ']')))
+                  !isCustomerIdEndedProperly(customerGroup, customerId, index))))
         )) {
             if (logLevel >= 2) {
                 console.log(`Code block ${customerGroup} with length of ${contentGroup.length} characters for ${customerId} excluded from ${fileName}`);
