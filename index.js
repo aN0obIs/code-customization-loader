@@ -1,18 +1,18 @@
-var loaderUtils = require('loader-utils');
-var path = require('path');
-var regExp = /\/\*\* CHECK_CUSTOMER_START (\[.*?\]) \*\*\/((.|[\r\n])*?)\/\*\* CHECK_CUSTOMER_END \*\*\//g;
-var patternStart = '/** CHECK_CUSTOMER_START ';
-var patternEnd = '/** CHECK_CUSTOMER_END **/';
+const loaderUtils = require('loader-utils');
+const path = require('path');
+const regExp = /\/\*\* CHECK_CUSTOMER_START (\[.*?\]) \*\*\/((.|[\r\n])*?)\/\*\* CHECK_CUSTOMER_END \*\*\//g;
+const patternStart = '/** CHECK_CUSTOMER_START ';
+const patternEnd = '/** CHECK_CUSTOMER_END **/';
 
 function replace(source, query, fileName) {
-    var customerId = query.customer || 'default';
-    var startChar = source.indexOf(patternStart);
+    const customerId = query.customer || 'default';
+    const startChar = source.indexOf(patternStart);
     if (startChar < 0) {
         return source;
     }
-    var endChar = source.lastIndexOf(patternEnd) + patternEnd.length;
-    var localSource = source.substr(startChar, endChar - startChar);
-    var logLevel = parseInt(query.logLevel, 10)
+    const endChar = source.lastIndexOf(patternEnd) + patternEnd.length;
+    let localSource = source.substr(startChar, endChar - startChar);
+    let logLevel = parseInt(query.logLevel, 10)
     if (isNaN(logLevel)) {
         logLevel = 1;
     }
@@ -27,25 +27,32 @@ function replace(source, query, fileName) {
             console.log(contentGroup);
             console.log('___________FRAG_END_________');
         }
-        var index = customerGroup.indexOf(customerId);
-        if (
-          (index === -1 && customerGroup.indexOf('!') === -1) ||
-          (index > -1 &&
-            (index > 0 && customerGroup[index - 1] === '!' ||
-              ((index > 0 &&
-                customerGroup[index - 1] !== ',' &&
-                customerGroup[index - 1] !== ' ' &&
-                customerGroup[index - 1] !== '[') ||
-                (customerGroup.length > customerId.length + index &&
-                  customerGroup[customerId.length + index] !== ',' &&
-                  customerGroup[customerId.length + index] !== ' ' &&
-                  customerGroup[customerId.length + index] !== ']')))
-        )) {
+        const index = customerGroup.indexOf(customerId);
+        const startIndex = index - 1;
+        const endIndex = customerId.length + index;
+
+        const startsWithNot = index > 0 && customerGroup[startIndex] === '!';
+        const haveSomeNegativeCustomerCondition = customerGroup.indexOf('!') !== -1;
+
+        const startsWithSeparator = customerGroup[startIndex] === ','
+            || customerGroup[startIndex] === ' '
+            || customerGroup[startIndex] === '[';
+
+        const endsWithSeparator = customerGroup[endIndex] === ','
+            || customerGroup[endIndex] === ' '
+            || customerGroup[endIndex] === ']';
+
+        const customerFound = index > -1 && (startsWithSeparator || startsWithNot) && endsWithSeparator;
+
+        const customerConditionSuccess = (!customerFound && haveSomeNegativeCustomerCondition) ||
+            (customerFound && startsWithSeparator);
+
+        if (!customerConditionSuccess) {
             if (logLevel >= 2) {
                 console.log(`Code block ${customerGroup} with length of ${contentGroup.length} characters for ${customerId} excluded from ${fileName}`);
             }
-            var res = '';
-            for (var ri = 0; ri < str.length; ri++) {
+            let res = '';
+            for (let ri = 0; ri < str.length; ri++) {
                 if (ri > 2 && ri < (str.length - 3) && str[ri] !== '\n' && str[ri] !== '\r' && str[ri] !== '\t') {
                     res += '*';
                 } else {
@@ -57,20 +64,19 @@ function replace(source, query, fileName) {
         if (logLevel >= 1) {
             console.log(`Code block ${customerGroup} with length of ${contentGroup.length} characters for ${customerId} included in ${fileName}`);
         }
-        var custStub = '';
-        for (var ci = 0; ci < customerGroup.length; ci++) {
-            custStub += '*';
+        let customerStub = '';
+        for (let ci = 0; ci < customerGroup.length; ci++) {
+            customerStub += '*';
         }
-        return'/**************************' + custStub + '*/' + contentGroup + '/************************/';
+        return'/**************************' + customerStub + '*/' + contentGroup + '/************************/';
     });
-    var result = source.substr(0, startChar) + localSource + source.substr(endChar);
-    return result;
+    return source.substr(0, startChar) + localSource + source.substr(endChar);
 }
 
 module.exports = function (source, map) {
     this.cacheable && this.cacheable();
-    var query = loaderUtils.getOptions(this);
-    var fileName = path.basename(this.resourcePath);
+    const query = loaderUtils.getOptions(this);
+    const fileName = path.basename(this.resourcePath);
     source = replace(source, query, fileName);
     this.callback(null, source, map);
 };
