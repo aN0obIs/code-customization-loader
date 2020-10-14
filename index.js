@@ -4,6 +4,25 @@ const regExp = /\/\*\* CHECK_CUSTOMER_START (\[.*?\]) \*\*\/((.|[\r\n])*?)\/\*\*
 const patternStart = '/** CHECK_CUSTOMER_START ';
 const patternEnd = '/** CHECK_CUSTOMER_END **/';
 
+const getIndexiesStr = (str, customer, offset = 0) => {
+    const index = str.indexOf(customer, offset);
+    const startIndex = index - 1;
+    const endIndex = customer.length + index;
+    if (index > -1) {
+        if (
+          ![',', ' ', ']'].includes(str[endIndex]) ||
+          ![',', ' ', '[', '!'].includes(str[startIndex])
+        ) {
+            return getIndexiesStr(str, customer, endIndex);
+        }
+    }
+    return {
+        index,
+        startIndex,
+        endIndex,
+    }
+}
+
 function replace(source, query, fileName) {
     const customerId = query.customer || 'default';
     const startChar = source.indexOf(patternStart);
@@ -22,30 +41,20 @@ function replace(source, query, fileName) {
         console.log('___________END__________');
     }
     localSource = localSource.replace(regExp, function (str, customerGroup, contentGroup, __, offset) {
+
         if (logLevel >= 3) {
             console.log('__________FRAG_START_________');
             console.log(contentGroup);
             console.log('___________FRAG_END_________');
         }
-        const index = customerGroup.indexOf(customerId);
-        const startIndex = index - 1;
-        const endIndex = customerId.length + index;
+        const { index, startIndex } = getIndexiesStr(customerGroup, customerId);
 
         const startsWithNot = index > 0 && customerGroup[startIndex] === '!';
         const haveSomeNegativeCustomerCondition = customerGroup.indexOf('!') !== -1;
 
-        const startsWithSeparator = customerGroup[startIndex] === ','
-            || customerGroup[startIndex] === ' '
-            || customerGroup[startIndex] === '[';
-
-        const endsWithSeparator = customerGroup[endIndex] === ','
-            || customerGroup[endIndex] === ' '
-            || customerGroup[endIndex] === ']';
-
-        const customerFound = index > -1 && (startsWithSeparator || startsWithNot) && endsWithSeparator;
-
+        const customerFound = index > -1;
         const customerConditionSuccess = (!customerFound && haveSomeNegativeCustomerCondition) ||
-            (customerFound && startsWithSeparator);
+          (customerFound && !startsWithNot);
 
         if (!customerConditionSuccess) {
             if (logLevel >= 2) {
