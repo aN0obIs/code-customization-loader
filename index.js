@@ -9,9 +9,11 @@ const getIndexiesStr = (str, customer, offset = 0) => {
     const startIndex = index - 1;
     const endIndex = customer.length + index;
     if (index > -1) {
+        const startChar = str[startIndex];
+        const endChar = str[endIndex];
         if (
-          ![',', ' ', ']'].includes(str[endIndex]) ||
-          ![',', ' ', '[', '!'].includes(str[startIndex])
+          !(startChar === ',' || startChar === ' ' || startChar === '[' || startChar === '!') ||
+          !(endChar === ',' || endChar === ' ' || endChar === ']')
         ) {
             return getIndexiesStr(str, customer, endIndex);
         }
@@ -19,7 +21,6 @@ const getIndexiesStr = (str, customer, offset = 0) => {
     return {
         index,
         startIndex,
-        endIndex,
     }
 }
 
